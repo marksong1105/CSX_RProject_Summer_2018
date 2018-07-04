@@ -9,12 +9,12 @@
 #### 學習歷程
 
 第一週 2018/7/4
-*在課堂上：
-  *開gifhub帳號
-  *使用gifhub dekstop
-  *在gifhub上建一個README.md
-*回家作業：
-  [hw1](http://www.google.com/)
+* 在課堂上：
+  * 開gifhub帳號
+  * 使用gifhub dekstop
+  * 在gifhub上建一個README.md
+* 回家作業：
+  * [hw1](http://www.google.com/)
 第二週 2018/7/11
   在課堂上
 
