@@ -155,8 +155,19 @@ $(document).ready(function () {
 </div>
 <div class="section level4">
 <h4>變數型態</h4>
-<p>變數有很多種類別，在不同程式語言也有不同分類。在 R 中分成 <em>numeric </em>integer <em>logical </em>character</p>
+<p>變數有很多種類別，在不同程式語言也有不同分類。在 R 中分成</p>
+<ul>
+<li>numeric</li>
+<li>integer</li>
+<li>logical</li>
+<li>character</li>
+</ul>
 <p>不同型別的變數型態之間的某些操作是不被允許的，例如：</p>
+<pre class="r"><code>1.5+3</code></pre>
+<pre><code>## [1] 4.5</code></pre>
+<pre class="r"><code>1.5+&quot;three&quot;</code></pre>
+<pre><code>## Error in 1.5 + &quot;three&quot;: 二元運算子中有非數值引數</code></pre>
+<p>第二個範例中，數字跟 character 不能相加。</p>
 </div>
 </div>
 

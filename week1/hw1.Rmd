@@ -47,10 +47,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #### 變數型態
 變數有很多種類別，在不同程式語言也有不同分類。在 R 中分成
-*numeric
-*integer
-*logical
-*character
+
+* numeric
+* integer
+* logical
+* character
 
 不同型別的變數型態之間的某些操作是不被允許的，例如：
 
@@ -58,7 +59,7 @@ knitr::opts_chunk$set(echo = TRUE)
 1.5+3
 ```
 
-```{r 1.5+"three"}
+```{r 1.5+"three" , error=TRUE}
 1.5+"three"
 ```
 
