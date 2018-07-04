@@ -10,9 +10,13 @@
 
 第一週 2018/7/4
 * 在課堂上：
-  * 開gifhub帳號
-  * 使用gifhub dekstop
-  * 在gifhub上建一個README.md
+  * 開立 gifhub 帳號
+  * 安裝並使用 gifhub dekstop 進行檔案同步
+  * 在 gifhub 上建一個README.md
+  * 安裝 R Studio
+  * 建立一個 R Markdown 檔案
+  * 將 R Markdown 檔案上傳 gifhub 
+  * 設定 gifhub 可以秀 R Markdown HTML 
 * 回家作業：
   * [hw1](http://www.google.com/)
 
