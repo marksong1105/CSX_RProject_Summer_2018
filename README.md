@@ -18,7 +18,7 @@
   * 將 R Markdown 檔案上傳 gifhub 
   * 設定 gifhub 可以秀 R Markdown HTML 
 * 回家作業：
-  * [hw1](http://www.google.com/)
+  * [hw1](https://marksong1105.github.io/CSX_RProject_Summer_2018/week1/hw1.html)
 
 第二週 2018/7/11
 * 在課堂上
