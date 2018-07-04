@@ -15,6 +15,7 @@
   * 在gifhub上建一個README.md
 * 回家作業：
   * [hw1](http://www.google.com/)
+
 第二週 2018/7/11
   在課堂上
 
