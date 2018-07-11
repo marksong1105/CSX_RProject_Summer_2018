@@ -18,12 +18,16 @@
   * 將 R Markdown 檔案上傳 gifhub 
   * 設定 gifhub 可以秀 R Markdown HTML 
 * 回家作業：
+  * DataCamp ​Introduction to R (English)
+  * DataCamp ​Intermediate R​
   * [hw1](https://marksong1105.github.io/CSX_RProject_Summer_2018/week1/hw1.html)
 
 第二週 2018/7/11
 * 在課堂上
-
+  * 認識視覺化處理TED
+  * 了解資料型態及處理
 * 回家作業：
+  * [ggplot2](https://marksong1105.github.io/CSX_RProject_Summer_2018/week2/ggplot2-example.html)
 
 
 第三週 2018/7/18
