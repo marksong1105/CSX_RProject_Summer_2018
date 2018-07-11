@@ -1,0 +1,50 @@
+---
+title: "ggmap-example"
+author: "Mark"
+date: "2018年7月11日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 紫外線即時監測資料的 csv 檔
+[資料來源](https://data.gov.tw/dataset/6076) 資料日期：2018/7/11 12:05
+
+```{r uv <- read.csv("ggmap-lab.CSV")}
+uv <- read.csv("ggmap-lab.CSV")
+```
+
+# 這裡原始的經緯度資料是以度分秒表示，在使用前要轉換為度數表示
+
+```{r}
+lon.deg <- sapply((strsplit(as.character(uv$WGS84Lon), ",")), as.numeric)
+uv$lon <- lon.deg[1, ] + lon.deg[2, ]/60 + lon.deg[3, ]/3600
+lat.deg <- sapply((strsplit(as.character(uv$WGS84Lat), ",")), as.numeric)
+uv$lat <- lat.deg[1, ] + lat.deg[2, ]/60 + lat.deg[3, ]/3600
+```
+
+# 使用 ggplot 的語法，把資料加入地圖中
+
+```{r}
+library(ggmap)
+library("mapproj")
+map <- get_map(location = 'Taiwan', zoom = 7)
+ggmap(map) + geom_point(aes(x = lon, y = lat, size = UVI), data = uv)
+```
+
+# 依照資料發佈單位分開畫圖
+```{r}
+library(ggmap)
+ggmap(map) +
+  geom_point(aes(x = lon, y = lat, size = UVI), data = uv) +
+  facet_grid( ~ PublishAgency)
+```
+
+#把地圖的顏色調淡一點，讓資料點更清楚
+```{r}
+library(ggmap)
+ggmap(map, darken = c(0.5, "white")) +
+  geom_point(aes(x = lon, y = lat, size = UVI), data = uv)
+```

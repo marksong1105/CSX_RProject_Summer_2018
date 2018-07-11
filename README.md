@@ -26,8 +26,11 @@
 * 在課堂上
   * 認識視覺化處理TED
   * 了解資料型態及處理
+  * 了解 ggplot2 資料存取與使用
+  * 了解 ggplot2 如何與 ggmap 整合
 * 回家作業：
   * [ggplot2](https://marksong1105.github.io/CSX_RProject_Summer_2018/week2/ggplot2-example.html)
+  * [ggmap](https://marksong1105.github.io/CSX_RProject_Summer_2018/week2/ggmap-example.html)
 
 
 第三週 2018/7/18

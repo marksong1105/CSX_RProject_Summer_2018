@@ -9,9 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## ggplot2 example
-
-使用內建 iris 
+# 使用內建 iris 
 ```{r iris}
 iris
 ```
