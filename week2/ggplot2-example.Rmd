@@ -1,0 +1,57 @@
+---
+title: "ggplot2-example"
+author: "Mark"
+date: "2018年7月11日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## ggplot2 example
+
+使用內建 iris 
+```{r iris}
+iris
+```
+
+# 單變數：類別型
+```{r}
+library (ggplot2)
+ggplot(data = iris, aes(x = Species)) + 
+     geom_bar(fill = "lightblue", colour = "black")
+```
+
+#單變數：連續型
+```{r}
+library (ggplot2)
+ggplot(data = iris, aes(x = Sepal.Length)) +
+  geom_histogram()
+```
+
+#雙變數：連續 vs 連續
+```{r}
+library (ggplot2)
+ggplot(data = iris, aes(x = Sepal.Length, y=Petal.Length)) +
+  geom_point()
+```
+
+#雙變數：離散 vs 連續
+```{r}
+library (ggplot2)
+ggplot(iris, aes(x=Species, y=Sepal.Length)) +
+  geom_boxplot()
+```
+
+#多變量：鑽石銷售總體的關係
+```{r}
+library(ggplot2)
+library(GGally)
+library(scales)
+library(memisc)
+set.seed(20022012)
+iris_samp <- iris[sample(1:length(iris$Sepal.Length), 100), ]
+ggpairs(iris_samp,lower= list(continuous = wrap("points", shape = I('.'))),
+        upper = list(combo = wrap("box", outlier.shape = I('.'))))
+```
