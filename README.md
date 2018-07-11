@@ -28,10 +28,12 @@
   * 了解資料型態及處理
   * 了解 ggplot2 資料存取與使用
   * 了解 ggplot2 如何與 ggmap 整合
+  * 了解 ppt 爬文程式
+  * 確認 ppt 爬文標的及製作文字雲
 * 回家作業：
   * [ggplot2](https://marksong1105.github.io/CSX_RProject_Summer_2018/week2/ggplot2-example.html)
   * [ggmap](https://marksong1105.github.io/CSX_RProject_Summer_2018/week2/ggmap-example.html)
-
+  * [Text Mining](https://marksong1105.github.io/CSX_RProject_Summer_2018/week2/text-mining-example.html)
 
 第三週 2018/7/18
 * 在課堂上
