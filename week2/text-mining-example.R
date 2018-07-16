@@ -6,6 +6,7 @@ library(jiebaRD)
 library(jiebaR)
 library(RColorBrewer)
 library(wordcloud)
+library(wordcloud2)
 library(rvest)
 
 #網路爬蟲
@@ -66,3 +67,8 @@ wordcloud(freqFrame$Var1,freqFrame$Freq,
           rot.per=.1, colors=brewer.pal(8, "Dark2"),
           ordered.colors=FALSE,use.r.layout=FALSE,
           fixed.asp=TRUE)
+
+data_wc2 <- freqFrame[1:50, ]
+
+wordcloud2(data_wc2, size = 1, shape = 'star', fontFamily = "微软雅黑",color = "random-light", backgroundColor = "gary")
+
