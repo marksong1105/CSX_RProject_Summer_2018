@@ -39,13 +39,13 @@
 
 第三週 2018/7/18
 * 在課堂上
-  * 學習 EDA , 以 https://www.kaggle.com/erikbruin/titanic-2nd-degree-families-and-majority-voting 為例練習
+  * 學習 EDA (Exploratory Data Analysis) , 以 [Titanic](https://www.kaggle.com/erikbruin/titanic-2nd-degree-families-and-majority-voting) 資料為例練習
   * 繼續深入 Text Mining
-    * TF-IDF
-	* PCA
+    * TF-IDF (Term Frequency - Inverse Document Frequency)
+	* PCA (Principal components analysis)
 	* Kmeans
   * 回家作業：
-    * EDA 
+    * [EDA](https://marksong1105.github.io/CSX_RProject_Summer_2018/week3/EDA.html)
 	* [IF-IDF_PCA_Kmeans](https://marksong1105.github.io/CSX_RProject_Summer_2018/week3/TF-IDF_PCA_KMeans.html)
 
 
