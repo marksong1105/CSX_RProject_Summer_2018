@@ -46,7 +46,7 @@
 	* Kmeans
   * 回家作業：
     * EDA 
-	* [IF-IDF_PCA_Kmeans] (https://marksong1105.github.io/CSX_RProject_Summer_2018/week3/TF-IDF_PCA_KMeans.html)
+	* [IF-IDF_PCA_Kmeans](https://marksong1105.github.io/CSX_RProject_Summer_2018/week3/TF-IDF_PCA_KMeans.html)
 
 
 第四週 2018/7/25
