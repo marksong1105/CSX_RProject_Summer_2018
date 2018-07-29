@@ -1,0 +1,191 @@
+---
+title: "Statistics_TIMSS"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 以 TIMSS 2011 資料庫做其他統計相關練習
+
+
+## 讀檔案，資料來自於 TIMSS 2011 年
+```{r}
+dta <- read.table(file = "TIMSS2011TW.txt", header = TRUE)
+````
+
+## 檢視資料結構
+```{r}
+str(dta)
+head(dta)
+summary(dta)
+````
+
+## 看看數學及科學分數的直方圖
+```{r}
+require(lattice)
+histogram(~ math, data = dta, xlab = '數學分數', ylab='機率',type = "density")
+histogram(~ science , data = dta, xlab = '科學分數', ylab='機率',type = "density")
+````
+
+## 連續變項間關係
+```{r}
+dta_scores <- dta[, c('math', 'math.interest', 'math.evaluation', 'math.input', 'science', 'science.interest', 'science.evaluation', 'science.input','educational.resources')]
+````
+
+## 兩兩變項畫散佈圖
+```{r}
+pairs(dta_scores, pch = '.', upper.panel = panel.smooth, lower.panel = NULL, 
+      col = 'gray')
+````
+
+## 利用 lattice 的 splom 指令重畫兩兩變項散佈圖，算是進階版
+```{r}
+splom(~ dta_scores, cex = 0.1, pch = '.', axis.text.cex = 0.5, 
+      type = c('p', 'r', 'g'))
+````
+
+## 數學與科學相關
+```{r}
+round(cor(dta$math,dta$science), 3)
+````
+
+## 所有相關數值資訊相關
+```{r}
+round(cor(dta_scores), 3)
+````
+
+## 檢定相關是否顯著，也可以看到信賴區間
+```{r}
+cor.test( ~ math + math.interest, data = dta_scores)
+cor.test( ~ math + math.evaluation, data = dta_scores)
+
+cor.test( ~ science + science.interest, data = dta_scores)
+cor.test( ~ science + science.evaluation, data = dta_scores)
+````
+
+## 載進 Hmist，一次檢定所有相關
+```{r}
+require(Hmisc)
+rcorr(as.matrix(dta_scores), type="pearson")
+````
+
+## 檢驗數學、科學與興趣 及 數學、科學與評估何者相關高
+```{r}
+require(cocor)
+cocor(~math + math.interest | math + math.evaluation, dta)
+cocor(~science + science.interest | science + science.evaluation, dta)
+````
+
+## 看看練習時間與家長教育程度的學生數學平均與數標差
+```{r}
+aggregate(math ~ math.hours, data = dta, FUN = mean)
+aggregate(math ~ math.hours, data = dta, FUN = sd)
+
+aggregate(science ~ science.hours, data = dta, FUN = mean)
+aggregate(science ~ science.hours, data = dta, FUN = sd)
+
+aggregate(math ~ parental.education, data = dta, FUN = mean)
+aggregate(math ~ parental.education, data = dta, FUN = sd)
+
+aggregate(science ~ parental.education, data = dta, FUN = mean)
+aggregate(science ~ parental.education, data = dta, FUN = sd)
+````
+
+## 多個類別
+
+### 看看不同練習時間的學生數學、科學分數直方圖
+```{r}
+histogram(~ math | math.hours, data = dta, xlab = '數學分數', ylab='機率',
+          type = 'density', layout = c(3, 1))
+
+histogram(~ science | science.hours, data = dta, xlab = '科學分數', ylab='機率',
+          type = 'density', layout = c(3, 1))
+````
+
+
+### 看看不同家長教育程度的學生數學、科學分數直方圖
+```{r}
+histogram(~ math | parental.education, data = dta, xlab = '數學分數', ylab='機率',
+          type = 'density', layout = c(5, 1))
+
+histogram(~ science | parental.education, data = dta, xlab = '科學分數', ylab='機率',
+          type = 'density', layout = c(5, 1))
+````
+
+
+### 以盒鬚圖看不同練習時間的數學、科學成績差異
+```{r}
+bwplot(math.hours ~ math, data = dta, xlab = '數學分數',
+  panel = function(x, y, ...) {
+    panel.bwplot(x, y, ...)
+    panel.grid(v = -1, h = 0, ...) })
+
+bwplot(science.hours ~ science, data = dta, xlab = '科學分數',
+       panel = function(x, y, ...) {
+         panel.bwplot(x, y, ...)
+         panel.grid(v = -1, h = 0, ...) })
+````
+
+
+### 以盒鬚圖看不同家長教育程度的數學、科學成績差異
+```{r}
+bwplot(parental.education ~ math, data = dta, xlab = '數學分數',
+       panel = function(x, y, ...) {
+         panel.bwplot(x, y, ...)
+         panel.grid(v = -1, h = 0, ...) })
+
+bwplot(parental.education ~ science, data = dta, xlab = '科學分數',
+       panel = function(x, y, ...) {
+         panel.bwplot(x, y, ...)
+         panel.grid(v = -1, h = 0, ...) })
+````
+
+
+### 看看不同的練習時間與家長教育程到，科學與數學間的關係是否類似
+```{r}
+xyplot(science ~ math |  math.hours, data = dta, xlab = '數學分數', ylab = '科學分數',
+       type = c("g", "p", "r"), cex = 0.1, layout = c(3, 1))
+
+
+xyplot(science ~ math |  parental.education, data = dta, xlab = '數學分數', ylab = '科學分數',
+       type = c("g", "p", "r"), cex = 0.1, layout = c(5, 1))
+````
+
+
+## 連續變項與兩個類別變項間的關係
+
+### 看看不同練習時間、家長教育程度的學生數學、科學平均與對應的平均數標準誤
+```{r}
+show(m0 <- aggregate(math ~ math.hours + parental.education, data = dta, FUN = mean))
+show(m1 <- aggregate(math ~ math.hours + parental.education, data = dta, function(x) sd(x)/sqrt(length(x))))
+
+show(n0 <- aggregate(science ~ science.hours + parental.education, data = dta, FUN = mean))
+show(n1 <- aggregate(science ~ science.hours + parental.education, data = dta, function(x) sd(x)/sqrt(length(x))))
+````
+
+### 把資料集中，並重排國家
+```{r}
+m <- data.frame(m0, l = m0$math - m1$math, u = m0$math + m1$math) 
+m$math.hours <- factor(m$math.hours, levels=c('<= 45min', '>= 3hours', '45min - 3hours'))
+
+n <- data.frame(n0, l = n0$science - n1$science, u = n0$science + n1$science)
+n$science.hours <- factor(n$science.hours, levels=c('<= 45min', '>= 3hours', '45min - 3hours'))
+````
+
+
+### 載入 latticeExtra 套件
+```{r}
+require(latticeExtra)
+````
+
+### 在圖中加入了誤差
+```{r}
+segplot( parental.education ~ 1 + u | math.hours, data = m, centers = math, 
+        draw.bands = F, xlab = '數學平均分數', ylab = '家長教育程度',
+        main = '練習時間與家長教育程度之數學平均分數', layout = c(3, 1),
+        segments.fun = panel.arrows, ends = "both", angle = 90, length = 1, 
+        unit = "mm")
+````
+

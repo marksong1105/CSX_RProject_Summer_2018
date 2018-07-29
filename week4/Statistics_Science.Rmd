@@ -1,0 +1,409 @@
+---
+title: "Statistics_example"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# TIMSS 2011 統計分析練習(科學)
+
+### 讀入TIMSS 2011 年台灣資料
+### 該資料集內包含了4000多位學生在科學及科學方面的成績、興趣、投入時間，以及家長教育背景、教育資源量
+````{r}
+dta <- read.table(file = "TIMSS2011TW.txt", header = TRUE)
+````
+
+### 先看看它的資料結構和一些基本統計
+````{r}
+str(dta)
+head(dta)
+summary(dta)
+````
+
+## Part A. 性別 vs 科學成績
+
+### 從不同性別的科學分數盒鬚圖開始，並計算其信賴區間
+````{r}
+require(ggplot2)
+ggplot(data = dta, aes(x = gender, y = science)) +
+  geom_boxplot() + coord_flip() +
+  labs( y = 'science', x = 'gender', 
+        title = 'scienceematical Score Box')
+
+#以下函式計算95%信賴區間
+with(dta, 
+     tapply(science, gender,
+            function(x) 
+              c(mean(x) + c(-2, 2) * sd(x)/sqrt(length(x)))))
+````
+
+
+### 用 t-test 檢驗不同性別是否存在科學成績差異
+### 此函數會預設進行 Welch 校正，以處理兩樣本變異數不相同的問題
+````{r}
+t.test(science ~ gender, data = dta)
+````
+
+### 可加上參數 var.equal=TRUE 來假設變異數同值(不做Welch校正)
+````{r}
+t.test(science ~ gender, data = dta, var.equal = TRUE)
+````
+
+## Part B. 父母教育 & 教育資源量 vs 科學成績
+
+### 以下觀察父母的教育背景是否與科學成績有關
+### 先把父母教育欄位內各個水準順序定下來(order of factors)
+````{r}
+dta$parental.education <- factor(dta$parental.education, 
+                                 levels = c('elementary school',
+                                            'junior high school',
+                                            'high school',
+                                            'college', 
+                                            'university above'))
+````
+
+### 看不同父母教育程度下的科學分數平均數
+````{r}
+tapply(dta$science, dta$parental.education, mean)
+````
+
+### 同父母教育程度下的科學分數平均數，加上信賴區間
+````{r}
+library(Hmisc)
+ggplot(data = dta, 
+       aes(x = parental.education, y = science)) +
+  stat_summary(fun.data = 'mean_cl_boot', size = 1) +
+  scale_y_continuous(breaks = seq(500, 660, by = 20)) +
+  geom_hline(yintercept = mean(dta$science) , 
+             linetype = 'dotted') +
+  labs(x = '父母教育', y = '科學平均分數') +
+  coord_flip()
+````
+
+### 我們推測父母教育的效果可能是教育資源差距造成的，畫圖觀察看看
+````{r}
+anova(m1 <- lm(science ~ parental.education, data = dta))
+
+ggplot(data = dta, 
+       aes(group = parental.education, 
+           y = science, x = educational.resources)) +
+  geom_point() +
+  stat_smooth(method = 'lm', se = F) +
+  stat_smooth(aes(group = parental.education, 
+                  y = science, x = educational.resources), 
+              method = 'lm', se = F) + 
+  facet_grid( . ~  parental.education) +
+  labs(x = '教育資源', y = '科學分數')
+````
+
+### 利用 ANOVA 檢驗假設是否正確
+### 把教育資源加進模型
+````{r}
+anova(m2 <- update(m1, . ~ . + 
+                     educational.resources, data = dta))
+````
+
+### 或許不是父母教育而是教育資源造成
+````{r}
+anova(m3 <- update(m2, . ~ . - parental.education,  data = dta))
+````
+
+### 將 ANOVA 結果做成圖表輸出，先計算一些需要的數據
+### 將結果放在一個list中
+````{r}
+res_lm <- lapply(list(m1, m2, m3), summary)
+````
+
+### 比較在控制教育資源下，父母教育的效果
+````{r}
+(res_lm[[2]]$r.sq - res_lm[[3]]$r.sq)/res_lm[[2]]$r.sq
+
+anova(m3, m2)
+````
+
+### 比較在控制父母教育下，教育資源的效果
+````{r}
+(res_lm[[2]]$r.sq - res_lm[[1]]$r.sq)/res_lm[[1]]$r.sq
+
+anova(m1, m2)
+````
+
+### 正式畫圖
+````{r}
+require(coefplot)
+
+m2 <- lm(science ~ parental.education+educational.resources- 1, 
+         data = dta)
+coefplot(m2, xlab = '估計值', ylab = '迴歸變項', title = '反應變項 = 科學分數')
+````
+
+### 把資料與迴歸分析的預測值、殘差與影響度放進資料
+````{r}
+fit_m2 <- data.frame(dta[, c(7, 12, 13)], fitted = fitted(m2), resid = resid(m2),
+                     infl = influence(m2)$hat )
+````
+
+### 依父母教育疊合真實觀測值與預測值
+````{r}
+ggplot(data = fit_m2, aes(x = science, group = parental.education )) +
+  stat_density(geom = 'path', position = 'identity') +
+  stat_density(geom = 'path', position = 'identity', aes(x = fitted)) +
+  geom_vline(xintercept = c(with(dta, tapply(science,parental.education, mean))), linetype = 'dotted')+
+  facet_grid(parental.education ~ .) +
+  scale_x_continuous(breaks = seq(200, 900, by = 100))+
+  labs(x = '科學分數', y = '機率密度')
+````
+
+### 看殘差分配，依父母教育，檢視常態與變異數同質假設
+````{r}
+ggplot(data = fit_m2, aes(x = scale(resid)), group = parental.education ) +
+  stat_density(geom = 'path', position = 'identity', aes(linetype = parental.education)) +
+  scale_linetype_manual(values = 5:1) +
+  guides(linetype = guide_legend(reverse = TRUE)) +
+  labs(x = '標準化殘差', y = '機率密度') +
+  theme(legend.position = c(.15, .8))
+````
+
+### 看看殘差的 Q-Q 圖，依父母教育。檢視常態假設
+````{r}
+require(lattice)
+qqmath(~ scale(resid) | parental.education, data = fit_m2, type = c('p', 'g', 'r'),
+       xlab = '常態位數', ylab = '標準化殘差', layout = c(2, 3),
+       pch = '.', cex = 2)
+````
+
+### 畫預測值與殘差的散佈圖，檢查線性與等分散假設
+````{}
+require(MASS)
+
+ggplot(data = fit_m2, aes(x = fitted, y = scale(resid), group = parental.education )) +
+  geom_point(pch = 20, size = 1) +
+  stat_smooth(method = 'rlm', se = F) +
+  facet_grid(parental.education ~ .) +
+  labs(x = '科學預測值', y = '標準化殘差')
+````
+
+### 呈現影響值（影響估計結果過大的值）與標準化殘差
+````{r}
+ggplot(data = fit_m2, aes(x = infl, y = scale(resid), group = parental.education)) +
+  geom_text(aes(label = rownames(fit_m2)), cex = 2) +
+  geom_hline(yintercept = 0, linetype = 'dotted') +
+  facet_grid(parental.education ~ .) +
+  labs(x = '影響值', y = '標準化殘差')
+````
+
+### 看看影響值
+````{r}
+summary(influence(m2)$hat)
+````
+
+## Part C. 接下來分析資料集當中的其他變項是否和科學成績有關
+````{r}
+dta_science <- dta[, c('science', 'science.interest', 
+                    'science.evaluation', 'science.input')]
+#看看基本統計量
+colMeans(dta_science)
+````
+
+### 呈現兩兩散佈圖
+````{r}
+require(heplots)
+
+scatterplotMatrix(~ science + science.interest + science.evaluation + science.input, data= dta_science,
+                  pch = '.', cex = 3, smooth = FALSE, ellipse = TRUE,
+                  diagonal = 'none', lower.panel = NULL)
+````
+
+### 我們利用corrplot 套件，以圖形顯示相關性的大小
+````{r}
+require(corrplot)
+
+corrplot(cor(dta_science), method = 'ellipse', order = 'hclust', addrect = 4,
+         type = 'upper', tl.pos = 'tp')
+corrplot(cor(dta_science), add = TRUE, type = 'lower', method = 'number',
+         order = 'hclust', col = 'black', diag = FALSE, tl.pos = 'n', cl.pos = 'n')
+````
+
+### 放進三個解釋變項
+````{r}
+summary(m4 <- lm(science ~ science.interest + science.evaluation + science.input, data = dta_science))
+````
+
+### 看看效果如何
+````{r}
+coefplot(m4, predictors = c('science.interest', 'science.evaluation', 
+                            'science.input'),
+         xlab = '估計值', ylab = '迴歸變項(去除截距)', title = '反應變項是科學分數')
+
+require(effects)
+plot(allEffects(m4), main = '', ylim = c(550, 670), grid = T)
+````
+
+### 利用 lm.beta 套件，計算標準化迴歸係數
+````{r}
+library(lm.beta)
+summary(lm.beta(m4))
+````
+
+### 控制科學興趣與科學評價後，科學投入的效果
+```{r}
+summary(m5 <- update(m4, . ~ . - science.input , data = dta_science))
+anova(m5, m4)
+````
+
+## Part D. 練習時間 vs 科學成績
+### 首先從不同練習時間的科學分數盒鬚圖開始，並計算其信賴區間
+````{r}
+ggplot(data = dta, aes(x = science.hours, y = science)) +
+  geom_boxplot() + coord_flip() +
+  labs( y = 'science', x = 'science.hours', 
+        title = 'Scienceematical Score Box')
+
+#以下函式計算95%信賴區間
+with(dta, 
+     tapply(science, science.hours,
+            function(x) 
+              c(mean(x) + c(-2, 2) * sd(x)/sqrt(length(x)))))
+````
+
+### 因練習時間超過兩個因子, 故不做 T 檢定
+
+### 看不同練習時間下的科學分數平均數
+````{r}
+tapply(dta$science, dta$science.hours, mean)
+````
+
+### 同同練習時間下的科學分數平均數，加上信賴區間
+````{r}
+library(Hmisc)
+ggplot(data = dta, 
+       aes(x = science.hours, y = science)) +
+  stat_summary(fun.data = 'mean_cl_boot', size = 1) +
+  scale_y_continuous(breaks = seq(500, 660, by = 20)) +
+  geom_hline(yintercept = mean(dta$science) , 
+             linetype = 'dotted') +
+  labs(x = '練習時間', y = '科學平均分數') +
+  coord_flip()
+````
+
+#我們推測練習時間的效果可能是教育資源差距造成的，畫圖觀察看看
+````{r}
+anova(m6 <- lm(science ~ science.hours, data = dta))
+
+ggplot(data = dta, 
+       aes(group = science.hours, 
+           y = science, x = educational.resources)) +
+  geom_point() +
+  stat_smooth(method = 'lm', se = F) +
+  stat_smooth(aes(group = science.hours, 
+                  y = science, x = educational.resources), 
+              method = 'lm', se = F) + 
+  facet_grid( . ~  science.hours) +
+  labs(x = '教育資源', y = '科學分數')
+````
+
+### 利用以下 ANOVA 檢驗假設是否正確
+
+### 把教育資源加進模型
+```{r}
+anova(m6 <- update(m1, . ~ . + 
+                     educational.resources, data = dta))
+````
+
+### 或許不是練習時間而是教育資源造成
+```{r}
+anova(m7 <- update(m2, . ~ . - science.hours,  data = dta))
+````
+
+### 將 ANOVA 結果做成圖表輸出，先計算一些需要的數據
+### 將結果放在一個list中
+```{r}
+res_lm <- lapply(list(m1, m6, m7), summary)
+````
+
+### 比較在控制教育資源下，父母教育的效果
+```{r}
+(res_lm[[2]]$r.sq - res_lm[[3]]$r.sq)/res_lm[[2]]$r.sq
+
+anova(m7, m6)
+````
+
+### 比較在控制練習時間下，教育資源的效果
+```{r}
+(res_lm[[2]]$r.sq - res_lm[[1]]$r.sq)/res_lm[[1]]$r.sq
+
+anova(m1, m6)
+````
+
+
+### 正式畫圖
+```{r}
+require(coefplot)
+
+m6 <- lm(science ~ science.hours+educational.resources- 1, 
+         data = dta)
+coefplot(m6, xlab = '估計值', ylab = '迴歸變項', title = '反應變項 = 科學分數')
+````
+
+
+### 把資料與迴歸分析的預測值、殘差與影響度放進資料
+```{r}
+fit_m6 <- data.frame(dta[, c(7, 11, 13)], fitted = fitted(m2), resid = resid(m2),
+                    infl = influence(m2)$hat )
+````
+
+### 依練習時間疊合真實觀測值與預測值
+```{r}
+ggplot(data = fit_m6, aes(x = science, group = science.hours )) +
+  stat_density(geom = 'path', position = 'identity') +
+  stat_density(geom = 'path', position = 'identity', aes(x = fitted)) +
+  geom_vline(xintercept = c(with(dta, tapply(science,science.hours, mean))), linetype = 'dotted')+
+  facet_grid(science.hours ~ .) +
+  scale_x_continuous(breaks = seq(200, 900, by = 100))+
+  labs(x = '科學分數', y = '機率密度')
+````
+
+### 看殘差分配，依練習時間，檢視常態與變異數同質假設
+```{r}
+ggplot(data = fit_m6, aes(x = scale(resid)), group = science.hours ) +
+  stat_density(geom = 'path', position = 'identity', aes(linetype = science.hours)) +
+  scale_linetype_manual(values = 5:1) +
+  guides(linetype = guide_legend(reverse = TRUE)) +
+  labs(x = '標準化殘差', y = '機率密度') +
+  theme(legend.position = c(.15, .8))
+````
+
+### 看看殘差的 Q-Q 圖，依練習時間。檢視常態假設
+```{r}
+require(lattice)
+qqmath(~ scale(resid) | science.hours, data = fit_m6, type = c('p', 'g', 'r'),
+       xlab = '常態位數', ylab = '標準化殘差', layout = c(2, 3),
+       pch = '.', cex = 2)
+````
+
+### 畫預測值與殘差的散佈圖，檢查線性與等分散假設
+```{r}
+require(MASS)
+
+ggplot(data = fit_m6, aes(x = fitted, y = scale(resid), group = science.hours )) +
+  geom_point(pch = 20, size = 1) +
+  stat_smooth(method = 'rlm', se = F) +
+  facet_grid(science.hours ~ .) +
+  labs(x = '科學預測值', y = '標準化殘差')
+````
+
+### 呈現影響值（影響估計結果過大的值）與標準化殘差
+```{r}
+ggplot(data = fit_m6, aes(x = infl, y = scale(resid), group = science.hours)) +
+  geom_text(aes(label = rownames(fit_m2)), cex = 2) +
+  geom_hline(yintercept = 0, linetype = 'dotted') +
+  facet_grid(science.hours ~ .) +
+  labs(x = '影響值', y = '標準化殘差')
+````
+
+### 看看影響值
+```{r}
+summary(influence(m6)$hat)
+````

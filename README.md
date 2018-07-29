@@ -50,10 +50,23 @@
 
 第四週 2018/7/25
 * 在課堂上
-
+  * 初步了解基楚統計
+    * 描述性統計
+	* 機率分佈
+	* 假設檢定
+	  * T 檢定
+	  * ANOVA
+	* 回歸分析
+	  * 線性迴歸
+	  * 複迴歸
 * 回家作業：
-
-
+  * 以上課範例 TIMSS 2011 資料做統計分析練習
+    * [Statistics_Math](https://marksong1105.github.io/CSX_RProject_Summer_2018/week4/Statistics_Math.html)
+  * 依樣畫葫蘆, 以 TIMSS 2011 資料改以科學成績作為統計分析, 並加上其他變項模型
+    * [Statistics_Science](https://marksong1105.github.io/CSX_RProject_Summer_2018/week4/Statistics_Science.html)     
+  * 以 TIMSS 2011 資料做其他的統計分析練習	
+    * [Statistics_TIMSS](https://marksong1105.github.io/CSX_RProject_Summer_2018/week4/Statistics_TIMSS.html)     
+	
 第五週 2018/8/1
 * 在課堂上
 
