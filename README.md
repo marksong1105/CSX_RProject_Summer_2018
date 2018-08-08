@@ -86,7 +86,7 @@
     * [skill for 18 college group](https://marksong.shinyapps.io/teacherwc/)
 	* [correlation for school types](https://bearhugdao.shinyapps.io/correlation1/)
 	* [correlation for school interests](https://bearhugdao.shinyapps.io/Corrplot2/)
-	* [correlation for school departmentgroup (https://bearhugdao.shinyapps.io/Corrplot3/)
+	* [correlation for school departmentgroup](https://bearhugdao.shinyapps.io/Corrplot3/)
 
 
 
