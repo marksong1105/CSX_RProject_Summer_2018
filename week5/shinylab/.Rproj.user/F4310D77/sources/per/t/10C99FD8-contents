@@ -1,0 +1,189 @@
+library(tmcn)
+library(NLP)
+library(tm)
+library(jiebaRD)
+library(jiebaR)
+library(RColorBrewer)
+library(wordcloud)
+library(wordcloud2)
+library(rvest)
+
+library(ggplot2)
+library(dplyr)
+library(seg)
+
+dta <- read.csv(file = "107TeacherList-V3.csv", header = TRUE, sep=",")
+
+dat2 <- dta[dta$大考學群代碼 == 1,]
+    
+
+ggplot(data = dta, aes(x= 專兼任 ,y=大考學群名稱)) + geom_point(color="red")
+
+ggplot(data = dta, aes(x = 專兼任)) + 
+  geom_bar(fill = "lightblue", colour = "black")
+
+ggplot(data = dta, aes(x = 聘書職級)) + 
+  geom_bar(fill = "lightblue", colour = "black")
+
+ggplot(data = dta, aes(x = 學校體制)) + 
+  geom_bar(fill = "lightblue", colour = "black")
+
+ggplot(data = dta, aes(x = 學群編號編碼)) + 
+  geom_bar(fill = "lightblue", colour = "black")
+
+ggplot(data = dta, aes(x = 大考學群名稱, y=專兼任)) + geom_boxplot()
+
+ggplot(data = dta, aes(x = 大考學群名稱, y=聘書職級)) + geom_boxplot()
+
+
+
+
+
+dta2 <- dta$教師專長
+
+#中文分詞
+dta2 <- segmentCN(as.character(dta$教師專長))
+
+#將列轉換為向量
+txt.aslist <- unlist(dta2)
+
+#詞語統計
+txt.freq <- table(txt.aslist)
+
+#頻數排序
+txt.result <- txt.freq[order(-txt.freq)]
+
+#導入停止詞表
+stopword<-read.csv('stopwords.txt',stringsAsFactors=FALSE,header=FALSE)
+
+#將數據轉換為向量型數據
+stopword.v <- as.vector(stopword$V1)
+
+#去除詞語統計中的停止詞
+word.pure <- setdiff(names(txt.result),stopword.v)
+
+#取出非停止詞
+txt.pure <- txt.result[word.pure]
+
+#提取前100位詞語畫詞雲
+wordcloud(names(txt.pure)[1:100],txt.pure[1:100],random.order = FALSE,random.color = FALSE)
+
+
+
+
+
+wf <- unlist(dta2)
+wf <- as.data.frame(table(wf))
+wf <- arrange(wf, desc(Freq))
+head(wf)
+wordcloud2(wf[ 1: 500,], backgroundColor = 'black')
+
+
+
+
+
+# 啟用 jiebaR 套件裡的斷詞引擎
+mixseg = worker()
+dta2.vec <-segment( code =txt.aslist ,jiebar = mixseg)
+
+space_tokenizer = function(x){
+  unlist(strsplit(as.character(x[[ 1]]), '[[:space:]]+' ))
+}
+jieba_tokenizer = function(d){
+  unlist(segment(d[[ 1]], mixseg))
+}
+
+# 撰寫 CNCorpus 副程式
+#### CNCorpus Function Start ####
+CNCorpus = function(d.vec){
+  doc <-VCorpus(VectorSource(d.vec))
+  doc <-unlist(tm_map(doc ,jieba_tokenizer), recursive = F)
+  doc <-lapply(doc , function(d)paste(d, collapse = ' '))
+  Corpus(VectorSource(doc))
+}
+#### CNCorpus Function END ####
+
+dta2.corpus = CNCorpus(list(dta2.vec)) # 執行 CNCorpus 副程式
+dta2.corpus <-tm_map(dta2.corpus, removeNumbers) # 移除數字
+control.list = list(wordLengths = c(2, Inf),tokenize = space_tokenizer)
+
+#這邊存入就亂碼了
+dta2.dtm <-DocumentTermMatrix(dta2.corpus, control = control.list)
+
+
+inspect(dta2.dtm) # 檢查內容
+
+frequency <-colSums(as.matrix(dta2.dtm ))
+frequency <-sort(frequency, decreasing = TRUE)[1:500]
+wordcloud2(as.table(frequency),size = 2, fontFamily = '微软雅黑',color = "random-light", backgroundColor = "white")
+
+
+
+
+
+
+#移除可能有問題的符號
+toSpace <- content_transformer(function(x, pattern) {
+  return (gsub(pattern, " ", x))
+}
+)
+docs <- tm_map(docs, toSpace, "※")
+docs <- tm_map(docs, toSpace, "◆")
+docs <- tm_map(docs, toSpace, "‧")
+docs <- tm_map(docs, toSpace, "的")
+docs <- tm_map(docs, toSpace, "我")
+docs <- tm_map(docs, toSpace, "是")
+docs <- tm_map(docs, toSpace, "看板")
+docs <- tm_map(docs, toSpace, "作者")
+docs <- tm_map(docs, toSpace, "發信站")
+docs <- tm_map(docs, toSpace, "批踢踢實業坊")
+docs <- tm_map(docs, toSpace, "[a-zA-Z]")
+#移除標點符號 (punctuation)
+#移除數字 (digits)、空白 (white space)
+docs <- tm_map(docs, removePunctuation)
+docs <- tm_map(docs, removeNumbers)
+docs <- tm_map(docs, stripWhitespace)
+docs
+
+
+
+#詞頻矩陣
+mixseg = worker()
+jieba_tokenizer=function(d){
+  unlist(segment(d[[1]],mixseg))
+}
+seg = lapply(dta2.vec, jieba_tokenizer)
+freqFrame = as.data.frame(table(unlist(seg)))
+freqFrame = freqFrame[order(freqFrame$Freq,decreasing=TRUE), ]
+library(knitr)
+kable(head(freqFrame), format = "markdown")
+
+
+
+
+freqFrame <- read.csv(file = "學群-2.csv", header = TRUE, sep=",") 
+
+#文字雲
+wordcloud(freqFrame$Var1,freqFrame$Freq,
+          scale=c(5,0.1),min.freq=50,max.words=150,
+          random.order=TRUE, random.color=FALSE, 
+          rot.per=.1, colors=brewer.pal(8, "Dark2"),
+          ordered.colors=FALSE,use.r.layout=FALSE,
+          fixed.asp=TRUE)
+
+
+
+data_wc2 <- freqFrame[1:200, ]
+
+wordcloud2(data_wc2, size = 1, fontFamily = "微软雅黑",color = "random-light", backgroundColor = "white")
+wordcloud2(data_wc2, size = 1, fontFamily = "微软雅黑",color = "random-light", backgroundColor = "gary")
+wordcloud2(data_wc2, size = 1,color = 'random-light', backgroundColor = "gray", fontWeight='bold',fontFamily = "微软雅黑",minRotation = -pi/3, maxRotation = pi/3,rotateRatio = 0.8)
+
+#這個好看
+wordcloud2(data_wc2, size = 1, minRotation = -pi/2, maxRotation = -pi/2)
+
+wordcloud2(data_wc2, size = 1, shape='cardioid',color = 'random-dark', backgroundColor = "white",fontFamily = "微软雅黑")
+wordcloud2(data_wc2, size = 1, shape = 'star')
+wordcloud2(data_wc2, size = 1, minRotation = -pi/6, maxRotation = -pi/6, rotateRatio = 1)
+
+

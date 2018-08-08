@@ -1,0 +1,121 @@
+#
+# This is a Shiny web application. You can run the application by clicking
+# the 'Run App' button above.
+#
+# Find out more about building applications with Shiny here:
+#
+#    http://shiny.rstudio.com/
+#
+
+library(shiny)
+
+library(wordcloud)
+library(wordcloud2)
+library(memoise)
+
+# The list of valid books
+books <- list("1 Information group" = "1", "2 Engineering Group" = "2", "Choice 3" = "3")
+
+
+# Using "memoise" to automatically cache the results
+getTermMatrix <- memoise(function(book) {
+  # Careful not to let just any name slip in here; a
+  # malicious user could manipulate this value.1
+  if (!(book %in% books))
+    stop("Unknown book")
+})
+
+
+
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(
+   
+   # Application title
+   titlePanel("106 College's professor profession by CEEC 18 school group"),
+   
+   # Sidebar with a slider input for number of bins 
+   sidebarLayout(
+      sidebarPanel(
+        radioButtons("Categories",label = h2("Categories"), books ,selected = 1),
+        hr(),
+        fluidRow(column(3, verbatimTextOutput("value"))),
+        
+
+        selectInput("selection", "Choice CEEC 18 school group:",
+                    choices = books),
+        actionButton("update", "Change"),
+        hr(),
+        sliderInput("freq",
+                    "Minimum Frequency:",
+                    min = 1,  max = 50, value = 15),
+        sliderInput("max",
+                    "Maximum Number of Words:",
+                    min = 1,  max = 300,  value = 150)
+      ),
+      
+      # Show a plot of the generated distribution
+      mainPanel(
+         plotOutput("distPlot")
+      )
+   ),bootstrapPage(
+     numericInput('size', 'Please input wordcload word Size (1-5)', min = 1,  max = 5,  value = 1),
+     wordcloud2Output('wordcloud2')
+   )
+)
+
+
+
+
+# Define server logic required to draw a histogram
+server <- function(input, output, session) {
+  
+  # Define a reactive expression for the document term matrix
+  terms <- reactive({
+    # Change when the "update" button is pressed...
+    input$update
+    # ...but not for anything else
+    #invalidateLater(1000)
+    
+    isolate({
+      index = which(books == input$Categories)
+      index = index %% length(books) + 1
+      
+      # Update the radioButtons
+      updateRadioButtons(session,'Categories',selected = books[index])
+      
+      withProgress({
+        setProgress(message = "Processing corpus...")
+        getTermMatrix(input$selection)
+      })
+    })
+  })
+  
+   wordcloud_rep <- repeatable(wordcloud)
+   dta <- read.csv(file = "cogs.csv", header = TRUE, sep=",") 
+   #freqFrame <- dta[dta$cog == input$Categories,]
+   freqFrame <- dta[dta$cog == 1,dta$Var1,dta$Freq]
+   
+   data_wc2 <- freqFrame[1:300, ]
+   
+   output$distPlot <- renderPlot({
+      v <- terms()
+      # generate bins based on input$bins from ui.R
+      wordcloud_rep(freqFrame$Var1,freqFrame$Freq, scale=c(5,0.1),
+      #wordcloud_rep(names(v), v, scale=c(5,0.1),
+                    min.freq = input$freq, max.words=input$max,
+                    #colors=brewer.pal(8, "Dark2"))
+                random.order = FALSE,colors=palette())
+   })
+   output$wordcloud2 <- renderWordcloud2({
+     # generate bins based on input$bins from ui.R
+     wordcloud2(data_wc2, size=input$size, minRotation = -pi/2, maxRotation = -pi/2)
+   })
+   
+   output$value <- renderPrint({ input$Categories })
+   
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+

@@ -1,0 +1,51 @@
+install.packages("ggmap")
+install.packages("maps")
+
+library("ggmap")
+library("mapproj")
+library ("ggplot2")
+require("lattice")
+
+#地圖的類型
+map <- get_map(location = 'Taiwan', zoom = 7, language = "zh-TW" , maptype = "roadmap")
+ggmap(map)
+
+
+#紫外線即時監測資料的 csv 檔
+collegemap <- read.csv("college-map.CSV")
+
+#ggplot2 紫外線即時監測資料
+ggplot(data = collegemap, aes(x=地理 ,y=地區)) + geom_point(color="red")
+
+ggplot(data = collegemap, aes(x = 地理)) + 
+  geom_bar(fill = "lightblue", colour = "black")
+
+ggplot(data = collegemap, aes(x = 地區)) + 
+  geom_bar(fill = "lightblue", colour = "black")
+
+ggplot(data = collegemap, aes(x = 學群編號編碼)) + 
+  geom_bar(fill = "lightblue", colour = "black")
+
+ggplot(data = collegemap, aes(x = 地區, y=學生數)) + geom_boxplot()
+
+ggplot(data = collegemap, aes(x = 地理, y=教師數)) + geom_boxplot()
+
+
+histogram(~ 學生數, data = collegemap, xlab = '學群編號編碼', ylab='教師數',type = "density")
+
+
+
+
+#使用 ggplot 的語法，把資料加入地圖中：
+
+ggmap(map) + geom_point(aes(x = 經度, y = 緯度, size = 學生數), data = collegemap)
+ggmap(map) + geom_point(aes(x = 經度, y = 緯度, size = 教師數), data = collegemap)
+
+
+#English
+
+ggmap(map) + geom_point(aes(x = longtitude, y = latitude, size = boy), data = collegemap)
+ggmap(map) + geom_point(aes(x = longtitude, y = latitude, size = girl), data = collegemap)
+
+
+ggmap(map) + geom_point(aes(x = longtitude, y = latitude, size = student), data = collegemap)

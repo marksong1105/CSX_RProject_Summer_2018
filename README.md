@@ -69,13 +69,21 @@
 	
 第五週 2018/8/1
 * 在課堂上
-
-* 回家作業：
+  * [講座] 使用 Scrum 模式開發雲端服務經驗分享 叡揚資訊 Tony Yang
+  * 回家作業：
+    * [Shiny_demo](https://marksong.shinyapps.io/shinylab/)
 
 第六週 2018/8/8
 * 在課堂上
+  * Final Project 最後努力
 
-* 回家作業：
+* Final Project：
+  * Overview
+    * this is a data search tool for student to understand which college or department is a great choice for them enjoy your searching time!
+  * project1
+    * [search your college](https://bearhugdao.shinyapps.io/college/)
+  * project2
+    * [skill for 18 college group](https://marksong.shinyapps.io/teacherwc/)
 
 
 

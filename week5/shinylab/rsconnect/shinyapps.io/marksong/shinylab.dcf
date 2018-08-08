@@ -1,0 +1,12 @@
+name: shinylab
+title: shinylab
+username:
+account: marksong
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 393020
+bundleId: 1518133
+url: https://marksong.shinyapps.io/shinylab/
+when: 1533385327.86752
+asMultiple: FALSE
+asStatic: FALSE
