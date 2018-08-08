@@ -1,0 +1,13 @@
+name: teacherwc
+title: teacherwc
+username:
+account: marksong
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 396434
+bundleId: 1524103
+url: https://marksong.shinyapps.io/teacherwc/
+when: 1533701155.78958
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: appC.R|cogC1.csv|cogC10.csv|cogC11.csv|cogC12.csv|cogC13.csv|cogC14.csv|cogC15.csv|cogC16.csv|cogC17.csv|cogC18.csv|cogC2.csv|cogC3.csv|cogC4.csv|cogC5.csv|cogC6.csv|cogC7.csv|cogC8.csv|cogC9.csv
